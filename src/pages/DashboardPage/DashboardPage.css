@@ -1,0 +1,11 @@
+/* src/pages/DashboardPage/DashboardPage.css */
+
+.dashboard-wrapper {
+  padding-top: 2rem; /* Apenas um padding no topo */
+  text-align: center;
+  
+  /* REMOVEMOS:
+   * - min-height: 100vh (AppLayout cuida disso)
+   * - background-color (AppLayout cuida disso)
+   */
+}
