@@ -1,0 +1,20 @@
+/* src/components/AppLayout/AppLayout.css */
+
+.app-layout {
+  display: flex;
+}
+
+.app-main-content {
+  /* * Esta é a mágica: 
+   * Ocupa todo o espaço restante (flex: 1)
+   * E tem uma margem à esquerda de 280px, 
+   * que é exatamente a largura da nossa Sidebar.
+  */
+  flex: 1;
+  margin-left: 280px; 
+  min-height: 100vh;
+  
+  /* O fundo claro para a área de conteúdo (contraste com a sidebar escura) */
+  background-color: #f8f9fa;
+  padding: 2rem; /* Um respiro para o conteúdo */
+}
