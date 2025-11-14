@@ -1,28 +1,60 @@
 // src/App.tsx
 
-import { Routes, Route, Navigate } from 'react-router-dom'; // 1. Importar 'Navigate'
+import { useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth'; 
+import { auth } from './firebase/config'; 
+import { useAuthStore } from './store/useAuthStore'; 
+
 import './App.css'; 
 
-// Importar nossas páginas
+// Importar nossas páginas e layouts
 import LoginPage from './pages/LoginPage/LoginPage';
-import SignupPage from './pages/SignupPage/SignupPage'; // 2. Importar a nova página
+import SignupPage from './pages/SignupPage/SignupPage';
+import DashboardPage from './pages/DashboardPage/DashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import AppLayout from './components/AppLayout/AppLayout'; // 1. Importar o nosso novo Layout
 
 function App() {
+  const setUser = useAuthStore((state) => state.setUser);
+  const setIsLoading = useAuthStore((state) => state.setIsLoading);
   
+  // Verificador de login (sem mudanças)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false); 
+    });
+    return () => unsubscribe();
+  }, [setUser, setIsLoading]); 
+
+
   return (
     <div className="App">
       <Routes>
-        {/* Rota 1: A página de Login */}
+        {/* === ROTAS PÚBLICAS === */}
+        {/* O usuário pode ver estas páginas sem estar logado */}
         <Route path="/login" element={<LoginPage />} />
-        
-        {/* Rota 2: A página de Cadastro */}
         <Route path="/signup" element={<SignupPage />} />
 
-        {/* Rota 3: A Rota Principal (/) */}
-        {/* Se o usuário visitar a raiz do site, redireciona para /login */}
-        <Route path="/" element={<Navigate to="/login" />} />
+        {/* === ROTAS PROTEGIDAS === */}
+        {/* 2. O "Segurança" (ProtectedRoute) envolve o "Esqueleto" (AppLayout) */}
+        <Route element={<ProtectedRoute />}>
+          
+          {/* 3. O Esqueleto (AppLayout) agora "contém" todas as nossas páginas de app */}
+          {/* O AppLayout mostra a Sidebar e o <Outlet/> */}
+          <Route element={<AppLayout />}>
+            
+            {/* 4. Estas páginas serão renderizadas dentro do <Outlet/> do AppLayout */}
+            <Route path="/" element={<DashboardPage />} />
+            {/* <Route path="/tasks" element={<TasksPage />} /> */}
+            {/* <Route path="/notes" element={<NotesPage />} /> */}
+            
+          </Route>
+        </Route>
         
-        {/* Adicionaremos mais rotas aqui (Dashboard) depois */}
+        {/* Rota 404 (qualquer outra coisa) */}
+        <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>
     </div>
