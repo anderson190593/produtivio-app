@@ -12,8 +12,9 @@ import './App.css';
 import LoginPage from './pages/LoginPage/LoginPage';
 import SignupPage from './pages/SignupPage/SignupPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
+import TasksPage from './pages/TasksPage/TasksPage'; // 1. Importar a nova página de Tarefas
 import ProtectedRoute from './components/ProtectedRoute';
-import AppLayout from './components/AppLayout/AppLayout'; // 1. Importar o nosso novo Layout
+import AppLayout from './components/AppLayout/AppLayout';
 
 function App() {
   const setUser = useAuthStore((state) => state.setUser);
@@ -33,27 +34,27 @@ function App() {
     <div className="App">
       <Routes>
         {/* === ROTAS PÚBLICAS === */}
-        {/* O usuário pode ver estas páginas sem estar logado */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
 
         {/* === ROTAS PROTEGIDAS === */}
-        {/* 2. O "Segurança" (ProtectedRoute) envolve o "Esqueleto" (AppLayout) */}
         <Route element={<ProtectedRoute />}>
           
-          {/* 3. O Esqueleto (AppLayout) agora "contém" todas as nossas páginas de app */}
-          {/* O AppLayout mostra a Sidebar e o <Outlet/> */}
+          {/* O Esqueleto (AppLayout) contém o menu e o conteúdo */}
           <Route element={<AppLayout />}>
             
-            {/* 4. Estas páginas serão renderizadas dentro do <Outlet/> do AppLayout */}
+            {/* As páginas renderizadas DENTRO do AppLayout */}
             <Route path="/" element={<DashboardPage />} />
-            {/* <Route path="/tasks" element={<TasksPage />} /> */}
-            {/* <Route path="/notes" element={<NotesPage />} /> */}
+            
+            {/* 2. Adicionamos a rota de Tarefas aqui */}
+            <Route path="/tasks" element={<TasksPage />} />
+            
+            {/* <Route path="/notes" element={<NotesPage />} /> (Futuro) */}
             
           </Route>
         </Route>
         
-        {/* Rota 404 (qualquer outra coisa) */}
+        {/* Rota 404 */}
         <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>
