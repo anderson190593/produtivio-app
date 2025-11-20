@@ -1,0 +1,108 @@
+/* src/pages/TasksPage/TasksPage.css */
+
+.tasks-page-wrapper {
+  animation: fadeIn 0.5s ease-in-out;
+  padding-bottom: 4rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card de Adicionar */
+.add-task-card {
+  border: none;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.add-task-card input {
+  border: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.add-task-card input:focus {
+  background-color: #fff;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  border-color: var(--bs-primary);
+}
+
+/* Item da Lista */
+.task-item {
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  background-color: #ffffff;
+}
+
+.task-item:first-child {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.task-item:hover {
+  background-color: #fcfcfc;
+}
+
+.task-content {
+  flex-grow: 1;
+  cursor: pointer;
+}
+
+/* Checkbox maior e mais clicável */
+.task-checkbox {
+  width: 1.3em;
+  height: 1.3em;
+  cursor: pointer;
+  border-radius: 50%; /* Checkbox redondo estilo moderno */
+}
+
+/* Tarefa Concluída */
+.task-completed {
+  background-color: #f8f9fa;
+}
+
+.task-completed .task-title {
+  text-decoration: line-through;
+  color: #adb5bd;
+  transition: color 0.3s ease;
+}
+
+/* Botão de Deletar */
+.btn-delete {
+  opacity: 0; /* Invisível por padrão */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mostra o botão apenas quando passa o mouse na tarefa (Desktop) */
+.task-item:hover .btn-delete {
+  opacity: 1;
+}
+
+/* Em telas touch, o botão deve estar sempre visível ou com opacidade reduzida */
+@media (hover: none) {
+  .btn-delete {
+    opacity: 0.5;
+  }
+}
+
+.btn-delete:hover {
+  transform: scale(1.1);
+  background-color: #dc3545;
+  color: white;
+}
