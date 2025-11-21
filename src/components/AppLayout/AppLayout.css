@@ -3,30 +3,29 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--bg-app); /* Garante o fundo escuro */
+  background-color: var(--bg-app);
 }
 
 .app-main-content {
-  /* * Mantemos a lógica de empurrar o conteúdo 
-   * para a direita da sidebar (280px)
-   */
   flex: 1;
-  margin-left: 280px; 
+  margin-left: 280px; /* Desktop: Espaço para a sidebar fixa */
   min-height: 100vh;
-  
-  /* Cor de fundo transparente para herdar do body ou usar var(--bg-app) */
-  background-color: transparent; 
-  
-  padding: 2rem 3rem; /* Aumentei um pouco o padding lateral para mais respiro */
-  
-  /* Transição suave caso a largura da sidebar mude no futuro */
+  background-color: transparent;
+  padding: 2rem 3rem;
   transition: margin-left 0.3s ease;
+  width: 100%; /* Garante que ocupe a largura correta */
 }
 
-/* Responsividade: Em telas menores, a sidebar pode mudar (futuro) */
+/* Header Mobile */
+.mobile-header {
+  display: flex;
+  align-items: center;
+}
+
+/* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
   .app-main-content {
-    margin-left: 0;
+    margin-left: 0; /* Mobile: Remove margem, sidebar é flutuante */
     padding: 1.5rem;
   }
 }
