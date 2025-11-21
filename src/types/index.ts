@@ -1,10 +1,19 @@
 // src/types/index.ts
 
-// Define a estrutura de uma Tarefa no nosso sistema
 export interface Task {
-  id: string;           // ID único do Firestore
-  title: string;        // O texto da tarefa
-  completed: boolean;   // Se está feita ou não
-  userId: string;       // O ID do dono da tarefa (Segurança)
-  createdAt: number;    // Data de criação (timestamp)
+  id: string;
+  title: string;
+  completed: boolean;
+  userId: string;
+  createdAt: number;
+}
+
+// --- ADICIONE ISSO ---
+export interface Note {
+  id: string;
+  title: string;    // Título opcional ou assunto
+  content: string;  // O corpo da nota
+  isPinned: boolean; // Se está fixada no topo
+  userId: string;
+  createdAt: number;
 }
