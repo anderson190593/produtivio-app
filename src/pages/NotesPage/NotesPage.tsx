@@ -1,25 +1,55 @@
 // src/pages/NotesPage/NotesPage.tsx
 
-import { useState } from 'react';
+import { useState } from 'react'; // useEffect removido pois AppLayout já carrega
 import { useNotes } from '../../hooks/useNotes';
+import type { Note } from '../../types'; // Importar o tipo para tipar o estado
 import './NotesPage.css';
 
 const NotesPage = () => {
-  const { notes, isLoadingNotes, addNote, deleteNote } = useNotes();
+  // Pegamos o updateNote agora
+  const { notes, isLoadingNotes, addNote, deleteNote, updateNote } = useNotes();
   
-  // Estados para o formulário de criação
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
-
   
+  // Novo estado para saber se estamos editando
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
 
-  const handleAddNote = async () => {
+  const handleSaveNote = async () => {
     if (!title.trim() && !content.trim()) return;
-    await addNote(title, content);
+
+    if (editingNoteId) {
+      // MODO EDIÇÃO
+      await updateNote(editingNoteId, title, content);
+      setEditingNoteId(null); // Sai do modo edição
+    } else {
+      // MODO CRIAÇÃO
+      await addNote(title, content);
+    }
+
+    // Limpa o form
     setTitle('');
     setContent('');
-    setIsExpanded(false); // Fecha após criar
+    setIsExpanded(false);
+  };
+
+  const handleCancel = () => {
+    setIsExpanded(false);
+    setTitle('');
+    setContent('');
+    setEditingNoteId(null); // Cancela edição também
+  };
+
+  // Função para carregar a nota no formulário ao clicar nela
+  const handleEditClick = (note: Note) => {
+    setEditingNoteId(note.id);
+    setTitle(note.title);
+    setContent(note.content);
+    setIsExpanded(true); // Abre o formulário
+    
+    // Rola a página suavemente para o topo (onde está o formulário)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -29,9 +59,16 @@ const NotesPage = () => {
         <p className="text-secondary">Ideias, lembretes e fragmentos de código.</p>
       </header>
 
-      {/* 1. Área de Criação (Expandível) */}
+      {/* Área de Criação / Edição */}
       <div className="create-note-container">
-        <div className="note-input-card">
+        <div className={`note-input-card ${editingNoteId ? 'editing-mode' : ''}`}>
+          {/* Indicador visual de que está editando */}
+          {editingNoteId && (
+            <div className="text-accent small mb-2 fw-bold">
+              <i className="bi bi-pencil-fill me-2"></i> Editando nota
+            </div>
+          )}
+
           {isExpanded && (
             <input
               type="text"
@@ -55,26 +92,22 @@ const NotesPage = () => {
             <div className="note-actions">
               <button 
                 className="btn btn-sm text-secondary me-2"
-                onClick={() => {
-                    setIsExpanded(false);
-                    setTitle('');
-                    setContent('');
-                }}
+                onClick={handleCancel}
               >
                 Cancelar
               </button>
               <button 
                 className="btn btn-sm btn-primary"
-                onClick={handleAddNote}
+                onClick={handleSaveNote}
               >
-                Salvar
+                {editingNoteId ? 'Atualizar' : 'Salvar'}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* 2. Grid de Notas */}
+      {/* Grid de Notas */}
       {isLoadingNotes ? (
          <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status"></div>
@@ -87,7 +120,13 @@ const NotesPage = () => {
       ) : (
         <div className="notes-grid">
           {notes.map((note) => (
-            <div key={note.id} className={`note-card ${note.isPinned ? 'pinned' : ''}`}>
+            <div 
+              key={note.id} 
+              // Adicionamos onClick no card para editar
+              className={`note-card ${note.isPinned ? 'pinned' : ''} ${editingNoteId === note.id ? 'being-edited' : ''}`}
+              onClick={() => handleEditClick(note)}
+              style={{ cursor: 'pointer' }}
+            >
               {note.isPinned && <i className="bi bi-pin-angle-fill pin-icon"></i>}
               
               {note.title && <h3>{note.title}</h3>}
@@ -101,7 +140,7 @@ const NotesPage = () => {
                   <button 
                     className="delete-btn"
                     onClick={(e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); // Impede de abrir a edição ao deletar
                         deleteNote(note.id);
                     }}
                   >
