@@ -1,0 +1,131 @@
+/* src/pages/NotesPage/NotesPage.css */
+
+.notes-page-wrapper {
+  animation: fadeIn 0.5s ease-in-out;
+  padding-bottom: 4rem;
+  width: 100%;
+}
+
+/* --- ÁREA DE CRIAÇÃO (Input Expandível) --- */
+.create-note-container {
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+}
+
+.note-input-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.note-input-card:focus-within {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(112, 0, 255, 0.15);
+}
+
+.note-input-title {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 1.1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  outline: none;
+}
+
+.note-input-content {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  width: 100%;
+  resize: none;
+  outline: none;
+  min-height: 40px;
+  font-family: inherit;
+}
+
+/* Botão de salvar flutuante ou interno */
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* --- GRID DE NOTAS --- */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.note-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.note-card.pinned {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(112, 0, 255, 0.1);
+}
+
+.note-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.note-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  white-space: pre-wrap; /* Preserva quebras de linha */
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+/* Botão de deletar (aparece no hover) */
+.note-card .delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0;
+  background: transparent;
+  border: none;
+  color: #ff4d4d;
+  transition: opacity 0.2s;
+}
+
+.note-card:hover .delete-btn {
+  opacity: 1;
+}
+
+/* Ícone de alfinete */
+.pin-icon {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-app);
+  color: var(--accent-color);
+  padding: 0 6px;
+  font-size: 1.2rem;
+}
