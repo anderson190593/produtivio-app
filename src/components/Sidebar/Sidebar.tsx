@@ -1,10 +1,10 @@
 // src/components/Sidebar/Sidebar.tsx
 
-//import { useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useTasksStore } from '../../store/useTasksStore'; // Importando do Store global
+import { useTasksStore } from '../../store/useTasksStore';
+import { useUIStore } from '../../store/useUIStore'; // 1. Importar UI Store
 import './Sidebar.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -12,82 +12,92 @@ const Sidebar = () => {
   const { logout } = useAuth();
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
-  
-  // Usamos o Store diretamente para pegar o número de tarefas em tempo real
   const tasks = useTasksStore((state) => state.tasks);
+  
+  // 2. Conectar ao estado do menu
+  const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+  const closeSidebar = useUIStore((state) => state.closeSidebar);
 
-  // Se quisermos buscar tarefas ao carregar o app (opcional aqui se já feito no Dashboard)
-  // const { fetchTasks } = useTasks();
-  // useEffect(() => { if (user) fetchTasks(); }, [user, fetchTasks]);
-
-  // Filtra tarefas pendentes para o contador (Badge)
   const pendingCount = tasks.filter(t => !t.completed).length;
 
   return (
-    <div className="sidebar-wrapper">
-      <div className="sidebar-header">
-        <Link to="/" className="sidebar-brand">
-          <i className="bi bi-terminal-fill" style={{ color: 'var(--accent-color)' }}></i>
-          Produtiv.io
-        </Link>
-      </div>
+    <>
+      {/* Overlay escuro para mobile (clicar fora fecha o menu) */}
+      <div 
+        className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} 
+        onClick={closeSidebar}
+      />
 
-      <div className="sidebar-user">
-        {/* Avatar Placeholder (Círculo com a inicial) */}
-        <div className="user-avatar-placeholder">
-          {user?.email?.charAt(0).toUpperCase() || 'U'}
+      <div className={`sidebar-wrapper ${isSidebarOpen ? 'active' : ''}`}>
+        <div className="sidebar-header d-flex justify-content-between align-items-center">
+          <Link to="/" className="sidebar-brand" onClick={closeSidebar}>
+            <i className="bi bi-terminal-fill" style={{ color: 'var(--accent-color)' }}></i>
+            Produtiv.io
+          </Link>
+          
+          {/* Botão X para fechar no mobile */}
+          <button className="btn btn-link text-secondary d-md-none p-0" onClick={closeSidebar}>
+            <i className="bi bi-x-lg" style={{ fontSize: '1.5rem' }}></i>
+          </button>
         </div>
-        <div className="d-flex flex-column overflow-hidden">
-          <span className="user-email" title={user?.email || ''}>
-            {user ? user.email : 'Carregando...'}
-          </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            Plano Free
-          </span>
-        </div>
-      </div>
 
-      <ul className="nav flex-column sidebar-nav">
-        <li className="nav-item">
-          <NavLink to="/" className="nav-link" end>
-            <i className="bi bi-grid-1x2-fill"></i>
-            Dashboard
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink to="/tasks" className="nav-link d-flex justify-content-between align-items-center">
-            <span>
-              <i className="bi bi-check2-square"></i>
-              Tarefas  {/* <--- CORRIGIDO AQUI: De "Os" para "Tarefas" */}
+        <div className="sidebar-user">
+          <div className="user-avatar-placeholder">
+            {user?.email?.charAt(0).toUpperCase() || 'U'}
+          </div>
+          <div className="d-flex flex-column overflow-hidden">
+            <span className="user-email" title={user?.email || ''}>
+              {user ? user.email : 'Carregando...'}
             </span>
-            
-            {/* Badge só aparece se houver tarefas pendentes */}
-            {pendingCount > 0 && (
-              <span className="badge rounded-pill">
-                {pendingCount}
-              </span>
-            )}
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink to="/notes" className="nav-link">
-            <i className="bi bi-journal-text"></i>
-            Notas
-          </NavLink>
-        </li>
-      </ul>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              Plano Free
+            </span>
+          </div>
+        </div>
 
-      <div className="sidebar-footer">
-        <button 
-          className="btn btn-danger w-100" 
-          onClick={logout}
-          disabled={isLoading}
-        >
-          <i className="bi bi-box-arrow-left me-2"></i>
-          {isLoading ? 'Saindo...' : 'Sair'}
-        </button>
+        <ul className="nav flex-column sidebar-nav">
+          <li className="nav-item">
+            <NavLink to="/" className="nav-link" end onClick={closeSidebar}>
+              <i className="bi bi-grid-1x2-fill"></i>
+              Dashboard
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink to="/tasks" className="nav-link d-flex justify-content-between align-items-center" onClick={closeSidebar}>
+              <span>
+                <i className="bi bi-check2-square"></i>
+                Tarefas
+              </span>
+              {pendingCount > 0 && (
+                <span className="badge rounded-pill">
+                  {pendingCount}
+                </span>
+              )}
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink to="/notes" className="nav-link" onClick={closeSidebar}>
+              <i className="bi bi-journal-text"></i>
+              Notas
+            </NavLink>
+          </li>
+        </ul>
+
+        <div className="sidebar-footer">
+          <button 
+            className="btn btn-danger w-100" 
+            onClick={() => {
+              closeSidebar();
+              logout();
+            }}
+            disabled={isLoading}
+          >
+            <i className="bi bi-box-arrow-left me-2"></i>
+            {isLoading ? 'Saindo...' : 'Sair'}
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
