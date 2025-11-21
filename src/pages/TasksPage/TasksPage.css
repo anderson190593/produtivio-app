@@ -3,106 +3,153 @@
 .tasks-page-wrapper {
   animation: fadeIn 0.5s ease-in-out;
   padding-bottom: 4rem;
+  width: 100%;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* --- CABEÇALHO --- */
+.tasks-header h1 {
+  /* Gradiente igual ao do Dashboard */
+  background: linear-gradient(90deg, #fff, #a0a0a0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Card de Adicionar */
+/* --- INPUT DE NOVA TAREFA (Estilo Terminal) --- */
 .add-task-card {
-  border: none;
-  border-radius: 12px;
-  background-color: #ffffff;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 0.5rem; /* Padding menor para o input ocupar espaço */
+  transition: all 0.3s ease;
+}
+
+.add-task-card:focus-within {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow);
 }
 
 .add-task-card input {
-  border: 1px solid #e0e0e0;
-  background-color: #f8f9fa;
-  transition: all 0.2s ease;
+  background-color: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: 'Inter', monospace; /* Toque de código */
+  font-size: 1.1rem;
+  padding: 1rem;
+}
+
+.add-task-card input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
 }
 
 .add-task-card input:focus {
-  background-color: #fff;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-  border-color: var(--bs-primary);
-}
-
-/* Item da Lista */
-.task-item {
+  background-color: transparent;
+  box-shadow: none;
   border: none;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s ease;
-  background-color: #ffffff;
 }
 
-.task-item:first-child {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+/* Botão de Adicionar (+) */
+.add-task-card .btn-primary {
+  border-radius: 0.75rem;
+  margin: 0.5rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 
-.task-item:last-child {
-  border-bottom: none;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+/* --- LISTA DE TAREFAS --- */
+.tasks-list-container {
+  margin-top: 2rem;
+}
+
+.list-group {
+  background-color: transparent;
+  border-radius: 1rem;
+  gap: 0.75rem; /* Espaço entre tarefas (Card style) */
+}
+
+.task-item {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem !important; /* Força borda redonda em todos */
+  margin-bottom: 0;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  padding: 1rem 1.25rem;
 }
 
 .task-item:hover {
-  background-color: #fcfcfc;
+  background-color: var(--bg-hover);
+  transform: translateX(5px); /* Efeito de slide sutil */
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.task-content {
-  flex-grow: 1;
-  cursor: pointer;
+/* --- CHECKBOX CUSTOMIZADO (NEON) --- */
+.form-check {
+  display: flex;
+  align-items: center;
 }
 
-/* Checkbox maior e mais clicável */
 .task-checkbox {
-  width: 1.3em;
-  height: 1.3em;
+  appearance: none; /* Remove estilo padrão do navegador */
+  width: 1.5em;
+  height: 1.5em;
+  border: 2px solid var(--text-secondary);
+  border-radius: 50%;
+  background-color: transparent;
   cursor: pointer;
-  border-radius: 50%; /* Checkbox redondo estilo moderno */
+  position: relative;
+  transition: all 0.3s ease;
+  margin-top: 0; /* Corrige alinhamento bootstrap */
 }
 
-/* Tarefa Concluída */
+/* Estado: Marcado */
+.task-checkbox:checked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Checkmark (o Vzinho) feito com CSS */
+.task-checkbox:checked::after {
+  content: 'gw'; /* Código de ícone ou vazio para usar borda */
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* --- TAREFA CONCLUÍDA --- */
 .task-completed {
-  background-color: #f8f9fa;
+  opacity: 0.6;
+  background-color: rgba(30, 30, 36, 0.5); /* Mais escuro */
 }
 
 .task-completed .task-title {
   text-decoration: line-through;
-  color: #adb5bd;
-  transition: color 0.3s ease;
+  color: var(--text-secondary);
 }
 
-/* Botão de Deletar */
+/* --- BOTÃO DELETAR --- */
 .btn-delete {
-  opacity: 0; /* Invisível por padrão */
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Mostra o botão apenas quando passa o mouse na tarefa (Desktop) */
-.task-item:hover .btn-delete {
-  opacity: 1;
-}
-
-/* Em telas touch, o botão deve estar sempre visível ou com opacidade reduzida */
-@media (hover: none) {
-  .btn-delete {
-    opacity: 0.5;
-  }
+  color: #ff4d4d;
+  border-color: rgba(255, 77, 77, 0.3);
+  background: transparent;
 }
 
 .btn-delete:hover {
-  transform: scale(1.1);
-  background-color: #dc3545;
+  background-color: #ff4d4d;
   color: white;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+  border-color: #ff4d4d;
+  transform: scale(1.1);
 }
