@@ -1,27 +1,92 @@
 /* src/index.css */
-
 :root {
-  /* Configurações de fonte (padrão do Vite, bom manter) */
+  /* Paleta Futurista Dark */
+  --bg-app: #0f0f12;         /* Fundo quase preto */
+  --bg-sidebar: #16161a;     /* Sidebar levemente mais clara */
+  --bg-card: #1e1e24;        /* Cartões */
+  --bg-hover: #2a2a32;       /* Hover states */
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  
+  --accent-color: #7000ff;   /* Roxo Neon - Destaque principal */
+  --accent-hover: #8533ff;
+  --accent-glow: rgba(112, 0, 255, 0.3); /* Efeito de brilho */
+  
+  --border-color: #2d2d35;
+  
+  /* Fonte */
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  min-width: 320px;
-  min-height: 100vh;
+#root {
+  width: 100%;
+  height: 100vh;
 }
 
-/* * ESTA É A CORREÇÃO MAIS IMPORTANTE:
- * Nós removemos o 'max-width', 'margin: 0 auto' e 'padding' 
- * que o Vite coloca no #root por padrão.
- */
-#root {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  text-align: left; /* O padrão é 'left', não 'center' */
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-app);
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Sobrescrita de Bootstrap para Dark Mode Tech */
+.btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow); /* Efeito Neon */
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: 0 0 25px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.form-control {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.form-control:focus {
+  background-color: var(--bg-app);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.25rem var(--accent-glow);
+  color: var(--text-primary);
+}
+
+/* Títulos com gradiente (Toque Moderno) */
+h1, h2, .display-4 {
+  background: linear-gradient(90deg, #fff, #a0a0a0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
