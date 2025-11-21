@@ -1,18 +1,27 @@
 // src/components/Sidebar/Sidebar.tsx
 
-import { Link, NavLink } from 'react-router-dom'; // Para navegação
-import { useAuth } from '../../hooks/useAuth'; // Para a ação de logout
-import { useAuthStore } from '../../store/useAuthStore'; // Para ler quem é o usuário
-import './Sidebar.css'; // Nossos estilos
-import 'bootstrap-icons/font/bootstrap-icons.css'; // Importa os ícones do Bootstrap
+import { useEffect } from 'react'; // Adicionado useEffect
+import { Link, NavLink } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useTasks } from '../../hooks/useTasks'; // Importamos o hook de tarefas
+import './Sidebar.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const Sidebar = () => {
-  // Pega a ação de logout do hook de ações
   const { logout } = useAuth();
-  
-  // Lê o estado de 'loading' e 'user' do cérebro global
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
+
+  // 1. Pegamos as tarefas e a função de buscar do nosso hook
+  const { tasks, fetchTasks } = useTasks();
+
+  // 2. Assim que a Sidebar (o app) carregar, buscamos os dados!
+  useEffect(() => {
+    if (user) {
+      fetchTasks();
+    }
+  }, [user, fetchTasks]);
 
   return (
     <div className="sidebar-wrapper">
@@ -21,25 +30,28 @@ const Sidebar = () => {
       </div>
 
       <div className="sidebar-user">
-        {/* Mostra o e-mail do usuário (ou 'Carregando...') */}
         <span className="user-email">
           {user ? user.email : 'Carregando...'}
         </span>
       </div>
 
-      {/* Navegação Principal */}
       <ul className="nav flex-column sidebar-nav">
         <li className="nav-item">
-          {/* NavLink é especial: ele sabe qual é a "página ativa" */}
           <NavLink to="/" className="nav-link" end>
             <i className="bi bi-grid-1x2-fill me-2"></i>
             Dashboard
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to="/tasks" className="nav-link">
-            <i className="bi bi-check2-square me-2"></i>
-            Tarefas
+          <NavLink to="/tasks" className="nav-link d-flex justify-content-between align-items-center">
+            <span>
+              <i className="bi bi-check2-square me-2"></i>
+              Tarefas
+            </span>
+            {/* 3. Mostramos o contador (Badge) */}
+            {tasks.length > 0 && (
+              <span className="badge bg-primary rounded-pill">{tasks.length}</span>
+            )}
           </NavLink>
         </li>
         <li className="nav-item">
@@ -50,7 +62,6 @@ const Sidebar = () => {
         </li>
       </ul>
 
-      {/* Botão de Sair (no final) */}
       <div className="sidebar-footer">
         <button 
           className="btn btn-danger w-100" 
