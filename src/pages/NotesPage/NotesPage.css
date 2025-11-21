@@ -129,3 +129,14 @@
   padding: 0 6px;
   font-size: 1.2rem;
 }
+/* Feedback visual de Edição */
+.note-input-card.editing-mode {
+  border-color: var(--accent-color);
+  background-color: rgba(112, 0, 255, 0.05); /* Roxo bem clarinho */
+}
+
+/* Destaca a nota que está sendo editada na lista */
+.note-card.being-edited {
+  opacity: 0.5; /* Fica meio apagada na lista para indicar que "subiu" */
+  border-style: dashed;
+}
