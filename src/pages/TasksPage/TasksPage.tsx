@@ -1,96 +1,99 @@
 // src/pages/TasksPage/TasksPage.tsx
 
 import React, { useEffect, useState } from 'react';
-import { useTasks } from '../../hooks/useTasks';
+import { useTasks } from '../../hooks/useTasks'; // O hook já está conectado ao Store global!
 import './TasksPage.css';
 
 const TasksPage = () => {
-  // Pegamos todas as funções e estados do nosso hook customizado
   const { tasks, loadingTasks, fetchTasks, addTask, deleteTask, toggleTaskCompletion } = useTasks();
-  
-  // Estado local apenas para o input de "Nova Tarefa"
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
-  // Carrega as tarefas assim que a página abre
+  // Busca inicial
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
-  // Função chamada quando o usuário envia o formulário
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTaskTitle.trim()) return; // Não adiciona tarefa vazia
-    
+    if (!newTaskTitle.trim()) return;
     await addTask(newTaskTitle);
-    setNewTaskTitle(''); // Limpa o campo após adicionar
+    setNewTaskTitle('');
   };
 
   return (
     <div className="tasks-page-wrapper">
-      <div className="container">
+      <div className="container-fluid px-0"> {/* px-0 para alinhar com o layout */}
+        
         <header className="tasks-header mb-4">
-          <h1 className="h2">Minhas Tarefas</h1>
-          <p className="text-muted">Organize seu dia e aumente sua produtividade.</p>
+          <h1 className="h2">Log de Tarefas</h1>
+          <p className="text-secondary">Gerencie suas prioridades e execute com precisão.</p>
         </header>
 
-        {/* Formulário de Adicionar */}
-        <div className="add-task-card card mb-4 shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleAddTask} className="d-flex gap-2">
-              <input
-                type="text"
-                className="form-control form-control-lg"
-                placeholder="O que precisa ser feito hoje?"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-              />
-              <button type="submit" className="btn btn-primary btn-lg px-4" title="Adicionar Tarefa">
-                <i className="bi bi-plus-lg"></i>
-              </button>
-            </form>
-          </div>
+        {/* Input Estilizado */}
+        <div className="add-task-card mb-4">
+          <form onSubmit={handleAddTask} className="d-flex align-items-center w-100">
+            <input
+              type="text"
+              className="form-control flex-grow-1"
+              placeholder="Digite o próximo comando..." // Texto mais tech
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+            />
+            <button type="submit" className="btn btn-primary shadow-none">
+              <i className="bi bi-plus"></i>
+            </button>
+          </form>
         </div>
 
-        {/* Lista de Tarefas */}
+        {/* Lista */}
         <div className="tasks-list-container">
-          {loadingTasks ? (
+          {loadingTasks && tasks.length === 0 ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary" role="status"></div>
-              <p className="mt-2 text-muted">Carregando tarefas...</p>
+              <p className="mt-3 text-secondary">Sincronizando dados...</p>
             </div>
           ) : tasks.length === 0 ? (
-            <div className="empty-state text-center py-5">
-              <i className="bi bi-clipboard-check display-4 text-muted"></i>
-              <h3 className="h5 mt-3 text-muted">Nenhuma tarefa pendente</h3>
-              <p className="text-muted small">Adicione uma tarefa acima para começar.</p>
+            <div className="text-center py-5 opacity-50">
+              <i className="bi bi-terminal display-1 text-secondary"></i>
+              <h3 className="h5 mt-3 text-secondary">Sistema ocioso</h3>
+              <p className="text-secondary small">Nenhuma tarefa ativa no momento.</p>
             </div>
           ) : (
-            <ul className="list-group shadow-sm">
+            <ul className="list-group">
               {tasks.map((task) => (
                 <li 
                   key={task.id} 
-                  className={`list-group-item d-flex align-items-center justify-content-between p-3 task-item ${task.completed ? 'task-completed' : ''}`}
+                  className={`list-group-item d-flex align-items-center justify-content-between task-item ${task.completed ? 'task-completed' : ''}`}
                 >
-                  <div className="d-flex align-items-center gap-3 task-content">
-                    {/* Checkbox customizado */}
-                    <div className="form-check">
+                  <div className="d-flex align-items-center gap-3 task-content flex-grow-1" onClick={() => toggleTaskCompletion(task.id, task.completed)}>
+                    {/* Checkbox */}
+                    <div className="form-check m-0">
                       <input
                         className="form-check-input task-checkbox"
                         type="checkbox"
                         checked={task.completed}
-                        onChange={() => toggleTaskCompletion(task.id, task.completed)}
+                        onChange={() => {}} // O clique é tratado na div pai para facilitar
                         id={`task-${task.id}`}
                       />
                     </div>
-                    <label htmlFor={`task-${task.id}`} className="task-title mb-0">
-                      {task.title}
-                    </label>
+                    
+                    <div className="d-flex flex-column">
+                        <label htmlFor={`task-${task.id}`} className="task-title mb-0 pointer">
+                        {task.title}
+                        </label>
+                        <span className="small text-secondary" style={{ fontSize: '0.75rem' }}>
+                            {new Date(task.createdAt).toLocaleDateString()} • {new Date(task.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </span>
+                    </div>
                   </div>
                   
                   <button 
-                    className="btn btn-outline-danger btn-sm btn-delete"
-                    onClick={() => deleteTask(task.id)}
-                    title="Excluir tarefa"
+                    className="btn btn-delete btn-sm ms-2"
+                    onClick={(e) => {
+                        e.stopPropagation(); // Impede que clique no botão marque a tarefa
+                        deleteTask(task.id);
+                    }}
+                    title="Remover do sistema"
                   >
                     <i className="bi bi-trash"></i>
                   </button>
