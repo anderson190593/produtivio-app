@@ -1,17 +1,15 @@
 // src/pages/TasksPage/TasksPage.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTasks } from '../../hooks/useTasks'; // O hook já está conectado ao Store global!
 import './TasksPage.css';
 
 const TasksPage = () => {
-  const { tasks, loadingTasks, fetchTasks, addTask, deleteTask, toggleTaskCompletion } = useTasks();
+  const { tasks, loadingTasks, addTask, deleteTask, toggleTaskCompletion } = useTasks();
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
   // Busca inicial
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+ 
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
