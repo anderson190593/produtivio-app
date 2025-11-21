@@ -4,7 +4,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useTasksStore } from '../../store/useTasksStore';
-import { useUIStore } from '../../store/useUIStore'; // 1. Importar UI Store
+import { useUIStore } from '../../store/useUIStore'; 
 import './Sidebar.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -14,7 +14,6 @@ const Sidebar = () => {
   const user = useAuthStore((state) => state.user);
   const tasks = useTasksStore((state) => state.tasks);
   
-  // 2. Conectar ao estado do menu
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
   const closeSidebar = useUIStore((state) => state.closeSidebar);
 
@@ -22,7 +21,7 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Overlay escuro para mobile (clicar fora fecha o menu) */}
+      {/* Overlay escuro para mobile */}
       <div 
         className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} 
         onClick={closeSidebar}
@@ -41,19 +40,29 @@ const Sidebar = () => {
           </button>
         </div>
 
-        <div className="sidebar-user">
+        {/* --- BLOCO DO PERFIL (Corrigido) --- */}
+        {/* Agora é um Link clicável que leva para /profile */}
+        <Link 
+          to="/profile" 
+          className="sidebar-user text-decoration-none" 
+          onClick={closeSidebar} 
+          title="Editar Perfil"
+        >
           <div className="user-avatar-placeholder">
-            {user?.email?.charAt(0).toUpperCase() || 'U'}
+            {/* Mostra a inicial do Nome ou do Email */}
+            {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="d-flex flex-column overflow-hidden">
-            <span className="user-email" title={user?.email || ''}>
-              {user ? user.email : 'Carregando...'}
+            <span className="user-email text-white">
+              {/* Prioriza o Nome de Exibição */}
+              {user?.displayName || user?.email}
             </span>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              Plano Free
+              Configurações <i className="bi bi-gear-fill ms-1"></i>
             </span>
           </div>
-        </div>
+        </Link>
+        {/* --- FIM DO BLOCO DO PERFIL --- */}
 
         <ul className="nav flex-column sidebar-nav">
           <li className="nav-item">
