@@ -16,6 +16,7 @@ import TasksPage from './pages/TasksPage/TasksPage'; // 1. Importar a nova pági
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout/AppLayout';
 import NotesPage from './pages/NotesPage/NotesPage';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
 
 function App() {
   const setUser = useAuthStore((state) => state.setUser);
@@ -52,6 +53,8 @@ function App() {
             
             {/* <Route path="/notes" element={<NotesPage />} /> (Futuro) */}
             <Route path="/notes" element={<NotesPage />} />
+
+            <Route path="/profile" element={<ProfilePage />} />
             
           </Route>
         </Route>
