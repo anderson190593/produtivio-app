@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 import { 
-  collection, addDoc, query, where, getDocs, doc, deleteDoc 
-} from 'firebase/firestore'; // 1. Removi updateDoc
+  collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc // 1. Trazemos o updateDoc de volta
+} from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNotesStore } from '../store/useNotesStore';
@@ -17,12 +17,12 @@ export const useNotes = () => {
   const notes = useNotesStore((state) => state.notes);
   const isLoadingNotes = useNotesStore((state) => state.isLoadingNotes);
   
-  // 2. Removi updateNoteInStore pois não vamos editar notas agora
+  // 2. Trazemos o updateNoteInStore de volta
   const { 
-    setNotes, setIsLoadingNotes, addNoteToStore, removeNoteFromStore 
+    setNotes, setIsLoadingNotes, addNoteToStore, removeNoteFromStore, updateNoteInStore 
   } = useNotesStore();
 
-  // 1. FETCH (Buscar)
+  // FETCH (Buscar) - Sem alterações
   const fetchNotes = useCallback(async () => {
     if (!user) return;
     setIsLoadingNotes(true);
@@ -48,7 +48,7 @@ export const useNotes = () => {
     }
   }, [user, setNotes, setIsLoadingNotes]);
 
-  // 2. ADD (Adicionar)
+  // ADD (Adicionar) - Sem alterações
   const addNote = async (title: string, content: string) => {
     if (!user || (!title.trim() && !content.trim())) return;
 
@@ -62,10 +62,9 @@ export const useNotes = () => {
       createdAt: Date.now(),
     };
 
-    addNoteToStore(newNote); // UI Otimista
+    addNoteToStore(newNote);
 
     try {
-      // 3. CORREÇÃO: Criamos o objeto limpo sem destructuring para evitar erro do ESLint
       const docData = {
         title: newNote.title,
         content: newNote.content,
@@ -75,14 +74,34 @@ export const useNotes = () => {
       };
       
       await addDoc(notesCollectionRef, docData);
-      fetchNotes(); // Sincroniza ID real
+      fetchNotes(); 
     } catch (error) {
       console.error("Erro ao criar nota:", error);
-      fetchNotes(); // Reverte
+      fetchNotes(); 
     }
   };
 
-  // 3. DELETE (Remover)
+  // 3. UPDATE (Editar) - NOVA FUNÇÃO
+  const updateNote = async (id: string, newTitle: string, newContent: string) => {
+    // Encontra a nota antiga para manter os outros dados (como createdAt e isPinned)
+    const oldNote = notes.find((n) => n.id === id);
+    if (!oldNote) return;
+
+    const updatedNote = { ...oldNote, title: newTitle, content: newContent };
+    
+    // UI Otimista
+    updateNoteInStore(updatedNote);
+
+    try {
+      const noteDoc = doc(db, "notes", id);
+      await updateDoc(noteDoc, { title: newTitle, content: newContent });
+    } catch (error) {
+      console.error("Erro ao atualizar nota:", error);
+      fetchNotes(); // Reverte em caso de erro
+    }
+  };
+
+  // DELETE (Remover) - Sem alterações
   const deleteNote = async (id: string) => {
     removeNoteFromStore(id);
     try {
@@ -93,5 +112,5 @@ export const useNotes = () => {
     }
   };
 
-  return { notes, isLoadingNotes, fetchNotes, addNote, deleteNote };
+  return { notes, isLoadingNotes, fetchNotes, addNote, deleteNote, updateNote }; // Exportamos updateNote
 };
