@@ -142,3 +142,40 @@
   color: white;
   box-shadow: 0 0 15px rgba(220, 53, 69, 0.4);
 }
+
+/* src/components/Sidebar/Sidebar.css (Adicionar ao final) */
+
+/* --- MOBILE & RESPONSIVIDADE --- */
+
+/* O Overlay escuro */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 999; /* Atrás da sidebar (1000), na frente do conteúdo */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Comportamento em telas menores que 768px (Tablets/Celulares) */
+@media (max-width: 768px) {
+  .sidebar-wrapper {
+    transform: translateX(-100%); /* Esconde a sidebar para a esquerda */
+    box-shadow: none;
+  }
+
+  .sidebar-wrapper.active {
+    transform: translateX(0); /* Traz de volta */
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+}
