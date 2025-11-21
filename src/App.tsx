@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage/DashboardPage';
 import TasksPage from './pages/TasksPage/TasksPage'; // 1. Importar a nova página de Tarefas
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout/AppLayout';
+import NotesPage from './pages/NotesPage/NotesPage';
 
 function App() {
   const setUser = useAuthStore((state) => state.setUser);
@@ -50,6 +51,7 @@ function App() {
             <Route path="/tasks" element={<TasksPage />} />
             
             {/* <Route path="/notes" element={<NotesPage />} /> (Futuro) */}
+            <Route path="/notes" element={<NotesPage />} />
             
           </Route>
         </Route>
