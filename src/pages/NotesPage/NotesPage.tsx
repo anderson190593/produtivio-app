@@ -1,20 +1,18 @@
 // src/pages/NotesPage/NotesPage.tsx
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNotes } from '../../hooks/useNotes';
 import './NotesPage.css';
 
 const NotesPage = () => {
-  const { notes, isLoadingNotes, fetchNotes, addNote, deleteNote } = useNotes();
+  const { notes, isLoadingNotes, addNote, deleteNote } = useNotes();
   
   // Estados para o formulário de criação
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+  
 
   const handleAddNote = async () => {
     if (!title.trim() && !content.trim()) return;
