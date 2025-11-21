@@ -2,19 +2,31 @@
 
 .app-layout {
   display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-app); /* Garante o fundo escuro */
 }
 
 .app-main-content {
-  /* * Esta é a mágica: 
-   * Ocupa todo o espaço restante (flex: 1)
-   * E tem uma margem à esquerda de 280px, 
-   * que é exatamente a largura da nossa Sidebar.
-  */
+  /* * Mantemos a lógica de empurrar o conteúdo 
+   * para a direita da sidebar (280px)
+   */
   flex: 1;
   margin-left: 280px; 
   min-height: 100vh;
   
-  /* O fundo claro para a área de conteúdo (contraste com a sidebar escura) */
-  background-color: #f8f9fa;
-  padding: 2rem; /* Um respiro para o conteúdo */
+  /* Cor de fundo transparente para herdar do body ou usar var(--bg-app) */
+  background-color: transparent; 
+  
+  padding: 2rem 3rem; /* Aumentei um pouco o padding lateral para mais respiro */
+  
+  /* Transição suave caso a largura da sidebar mude no futuro */
+  transition: margin-left 0.3s ease;
+}
+
+/* Responsividade: Em telas menores, a sidebar pode mudar (futuro) */
+@media (max-width: 768px) {
+  .app-main-content {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
 }
