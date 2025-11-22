@@ -1,49 +1,123 @@
-/* src/pages/LoginPage/LoginPage.css */
+/* src/pages/AuthPages.css */
 
+/* Fundo da página inteira usando a cor escura global */
 .login-page-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Altura total da tela */
-  background-color: #f8f9fa; /* Um fundo cinza claro */
+  min-height: 100vh;
+  background-color: var(--bg-app); /* Fundo escuro */
+  padding: 1rem;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* O Cartão Central */
 .login-container {
   width: 100%;
   max-width: 400px;
-  padding: 2rem;
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem;
+  background-color: var(--bg-card); /* Cartão cinza escuro */
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Sombra mais profunda */
   text-align: center;
 }
 
-/* Ajustes nos inputs do Bootstrap */
-.form-floating > .form-control:focus,
-.form-floating > .form-control:not(:placeholder-shown) {
-  padding-top: 1.625rem;
-  padding-bottom: 0.625rem;
+/* Títulos */
+.login-container h1 {
+  color: white;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  margin-bottom: 0.5rem;
+  
+  /* Gradiente Tech */
+  background: linear-gradient(90deg, #fff, #a0a0a0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Adicione ao final de src/pages/AuthPages.css */
+.login-container h2 {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
 
+/* Inputs Flutuantes (Floating Labels) */
+.form-floating > .form-control {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.form-floating > .form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.25rem var(--accent-glow);
+  background-color: var(--bg-app); /* Mantém escuro no foco */
+}
+
+/* Cor do texto do label quando flutua */
+.form-floating > label {
+  color: var(--text-secondary);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Botão Principal */
+.btn-primary {
+  /* Já herda do index.css, mas reforçamos */
+  font-weight: 600;
+  padding: 0.75rem;
+}
+
+/* Separador "OU" */
 .auth-separator {
   margin: 1.5rem 0;
   display: flex;
   align-items: center;
   text-align: center;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .auth-separator::before,
 .auth-separator::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.auth-separator span {
-  padding: 0 1rem;
-  font-size: 0.9rem;
+/* Botão Google (Outline Dark Mode) */
+.btn-outline-dark {
+  color: white;
+  border-color: var(--border-color);
+  background-color: transparent;
+  transition: all 0.2s;
+  padding: 0.75rem;
+}
+
+.btn-outline-dark:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: white;
+  color: white;
+}
+
+/* Links (Cadastre-se) */
+.login-container a {
+  color: var(--accent-color);
+  text-decoration: none;
   font-weight: 500;
+}
+
+.login-container a:hover {
+  text-decoration: underline;
+  color: var(--accent-hover);
 }
