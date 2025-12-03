@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTasks } from '../../hooks/useTasks';
-import type { Priority, TaskStatus } from '../../types';
+import type { Priority } from '../../types';
 import './TasksPage.css';
 
 const TasksPage = () => {

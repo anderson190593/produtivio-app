@@ -6,16 +6,10 @@ export type TaskStatus = 'todo' | 'doing' | 'done';
 export interface Task {
   id: string;
   title: string;
-  // Substituímos o boolean 'completed' por um status mais robusto
   status: TaskStatus; 
-  // O campo 'completed' antigo pode ser mantido para compatibilidade ou removido. 
-  // Vamos manter compatibilidade lógica transformando 'completed' em getter se necessário, 
-  // mas por enquanto vamos usar 'status'.
-  completed?: boolean; // Mantido opcional para não quebrar código antigo imediatamente
-  
-  priority: Priority; // Novo!
-  category?: string;  // Novo! (Ex: 'Frontend', 'Marketing')
-  
+  completed?: boolean; // Mantido para compatibilidade
+  priority: Priority;
+  category?: string;
   userId: string;
   createdAt: number;
 }

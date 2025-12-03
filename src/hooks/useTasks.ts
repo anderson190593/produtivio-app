@@ -14,23 +14,24 @@ import {
 import { db } from "../firebase/config";
 import { useAuthStore } from "../store/useAuthStore";
 import { useTasksStore } from "../store/useTasksStore";
-import type { Task, Priority, TaskStatus } from "../types"; // Importar novos tipos
+import type { Task, Priority, TaskStatus } from "../types";
 
 const tasksCollectionRef = collection(db, "tasks");
 
 export const useTasks = () => {
   const user = useAuthStore((state) => state.user);
+  
+  // CORREÇÃO 1: Usamos o nome correto do Store (isLoadingTasks)
   const {
     tasks,
-    isLoadingTasks,
+    isLoadingTasks, 
     setTasks,
     setIsLoadingTasks,
     addTaskToStore,
     removeTaskFromStore,
-    toggleTaskInStore, // Esse precisaremos ajustar ou criar um updateTaskStatusInStore
-  } = useTasksStore(); // Assumindo que você expôs o state e as actions assim
+  } = useTasksStore();
 
-  // 1. BUSCAR (Leitura adaptada para garantir que tarefas antigas tenham campos novos)
+  // 1. BUSCAR
   const fetchTasks = useCallback(async () => {
     if (!user) return;
     setIsLoadingTasks(true);
@@ -40,16 +41,16 @@ export const useTasks = () => {
 
       const formattedTasks = data.docs.map((doc) => {
         const d = doc.data();
-        // Migração em tempo real: se não tiver prioridade, define como 'medium'
         return {
           ...d,
           id: doc.id,
+          // Garante compatibilidade
           status: d.status || (d.completed ? 'done' : 'todo'),
           priority: d.priority || 'medium'
         };
       }) as Task[];
 
-      // Ordena por Prioridade (High primeiro) e depois por Data
+      // Ordenação: Alta > Média > Baixa, depois Data
       const priorityWeight = { high: 3, medium: 2, low: 1 };
       formattedTasks.sort((a, b) => {
         const pDiff = priorityWeight[b.priority] - priorityWeight[a.priority];
@@ -65,7 +66,7 @@ export const useTasks = () => {
     }
   }, [user, setTasks, setIsLoadingTasks]);
 
-  // 2. ADICIONAR (Agora aceita Prioridade)
+  // 2. ADICIONAR
   const addTask = async (title: string, priority: Priority = 'medium') => {
     if (!user || !title.trim()) return;
 
@@ -74,8 +75,8 @@ export const useTasks = () => {
     const newTaskObj: Task = {
       id: tempListId,
       title: title,
-      status: 'todo', // Padrão
-      completed: false, // Mantém compatibilidade
+      status: 'todo',
+      completed: false,
       priority: priority,
       userId: user.uid,
       createdAt: Date.now(),
@@ -84,8 +85,16 @@ export const useTasks = () => {
     addTaskToStore(newTaskObj);
 
     try {
-      // Cria o objeto para o Firestore sem o ID
-      const { id, ...docData } = newTaskObj;
+      // CORREÇÃO 2: Criamos o objeto manualmente para evitar o erro do 'id'
+      const docData = {
+        title: newTaskObj.title,
+        status: newTaskObj.status,
+        completed: newTaskObj.completed,
+        priority: newTaskObj.priority,
+        userId: newTaskObj.userId,
+        createdAt: newTaskObj.createdAt
+      };
+
       await addDoc(tasksCollectionRef, docData);
       fetchTasks();
     } catch (error) {
@@ -105,22 +114,15 @@ export const useTasks = () => {
     }
   };
 
-  // 4. ALTERAR STATUS (Novo método mais poderoso que o toggle)
+  // 4. ALTERAR STATUS
   const updateTaskStatus = async (id: string, newStatus: TaskStatus) => {
-    // Atualize o store localmente aqui se tiver a action específica, 
-    // ou use o toggleTaskInStore de forma adaptada se for apenas visual
-    // Por simplicidade, vamos confiar no fetchTasks no catch ou sucesso
-    
-    // Atualização Otimista manual no array local (opcional, mas recomendada)
-    // ...
-
     try {
       const taskDoc = doc(db, "tasks", id);
       await updateDoc(taskDoc, { 
         status: newStatus,
         completed: newStatus === 'done' 
       });
-      fetchTasks(); // Recarrega para reordenar se necessário
+      fetchTasks();
     } catch (error) {
       console.error("Erro ao atualizar:", error);
     }
@@ -128,10 +130,10 @@ export const useTasks = () => {
 
   return {
     tasks,
-    loadingTasks,
+    loadingTasks: isLoadingTasks, // CORREÇÃO 3: Apelidamos para o nome que o componente espera
     fetchTasks,
     addTask,
     deleteTask,
-    updateTaskStatus, // Exportamos a nova função
+    updateTaskStatus,
   };
 };
