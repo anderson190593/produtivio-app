@@ -1,6 +1,6 @@
 // src/hooks/useTasks.ts
 
-import { useCallback } from "react"; // Removemos useState
+import { useCallback } from "react";
 import {
   collection,
   addDoc,
@@ -13,44 +13,51 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuthStore } from "../store/useAuthStore";
-import { useTasksStore } from "../store/useTasksStore"; // Importar o Store
-import type { Task } from "../types";
+import { useTasksStore } from "../store/useTasksStore";
+import type { Task, Priority, TaskStatus } from "../types"; // Importar novos tipos
 
 const tasksCollectionRef = collection(db, "tasks");
 
 export const useTasks = () => {
   const user = useAuthStore((state) => state.user);
-
-  // Usamos o estado GLOBAL agora
-  const tasks = useTasksStore((state) => state.tasks);
-  const loadingTasks = useTasksStore((state) => state.isLoadingTasks);
   const {
+    tasks,
+    isLoadingTasks,
     setTasks,
     setIsLoadingTasks,
     addTaskToStore,
     removeTaskFromStore,
-    toggleTaskInStore,
-  } = useTasksStore();
+    toggleTaskInStore, // Esse precisaremos ajustar ou criar um updateTaskStatusInStore
+  } = useTasksStore(); // Assumindo que você expôs o state e as actions assim
 
-  // 1. BUSCAR TAREFAS
+  // 1. BUSCAR (Leitura adaptada para garantir que tarefas antigas tenham campos novos)
   const fetchTasks = useCallback(async () => {
     if (!user) return;
-
-    // Se já temos tarefas carregadas, talvez não precisemos mostrar loading (opcional)
     setIsLoadingTasks(true);
-
     try {
       const q = query(tasksCollectionRef, where("userId", "==", user.uid));
       const data = await getDocs(q);
 
-      const formattedTasks = data.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as Task[];
+      const formattedTasks = data.docs.map((doc) => {
+        const d = doc.data();
+        // Migração em tempo real: se não tiver prioridade, define como 'medium'
+        return {
+          ...d,
+          id: doc.id,
+          status: d.status || (d.completed ? 'done' : 'todo'),
+          priority: d.priority || 'medium'
+        };
+      }) as Task[];
 
-      formattedTasks.sort((a, b) => b.createdAt - a.createdAt);
+      // Ordena por Prioridade (High primeiro) e depois por Data
+      const priorityWeight = { high: 3, medium: 2, low: 1 };
+      formattedTasks.sort((a, b) => {
+        const pDiff = priorityWeight[b.priority] - priorityWeight[a.priority];
+        if (pDiff !== 0) return pDiff;
+        return b.createdAt - a.createdAt;
+      });
 
-      setTasks(formattedTasks); // Salva no global!
+      setTasks(formattedTasks);
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
     } finally {
@@ -58,66 +65,64 @@ export const useTasks = () => {
     }
   }, [user, setTasks, setIsLoadingTasks]);
 
-  // 2. ADICIONAR TAREFA
-  const addTask = async (title: string) => {
+  // 2. ADICIONAR (Agora aceita Prioridade)
+  const addTask = async (title: string, priority: Priority = 'medium') => {
     if (!user || !title.trim()) return;
 
-    const tempListId = Date.now().toString(); // ID temporário para UI otimista
+    const tempListId = Date.now().toString();
+    
     const newTaskObj: Task = {
       id: tempListId,
       title: title,
-      completed: false,
+      status: 'todo', // Padrão
+      completed: false, // Mantém compatibilidade
+      priority: priority,
       userId: user.uid,
       createdAt: Date.now(),
     };
 
-    // UI Otimista: Adiciona na tela IMEDIATAMENTE
     addTaskToStore(newTaskObj);
 
     try {
-      // Remove o ID pois o Firebase cria um
-      // 1. Criamos um objeto limpo só com os dados para o Banco (sem o ID temporário)
-      const docData = {
-        title: newTaskObj.title,
-        completed: newTaskObj.completed,
-        userId: newTaskObj.userId,
-        createdAt: newTaskObj.createdAt,
-      };
-
-      // 2. Enviamos para o Firebase
+      // Cria o objeto para o Firestore sem o ID
+      const { id, ...docData } = newTaskObj;
       await addDoc(tasksCollectionRef, docData);
-
-      // Em um cenário real perfeito, atualizaríamos o ID temporário pelo real aqui,
-      // mas por enquanto vamos apenas fazer o fetch silencioso para garantir consistência
       fetchTasks();
     } catch (error) {
-      console.error("Erro ao adicionar tarefa:", error);
-      // Se der erro, deveríamos remover a tarefa da tela (revert)
+      console.error("Erro ao adicionar:", error);
       fetchTasks();
     }
   };
 
   // 3. DELETAR
   const deleteTask = async (id: string) => {
-    removeTaskFromStore(id); // UI Otimista (remove na hora)
+    removeTaskFromStore(id);
     try {
-      const taskDoc = doc(db, "tasks", id);
-      await deleteDoc(taskDoc);
+      await deleteDoc(doc(db, "tasks", id));
     } catch (error) {
-      console.error("Erro ao deletar tarefa:", error);
-      fetchTasks(); // Revert em caso de erro
+      console.error("Erro ao deletar:", error);
+      fetchTasks();
     }
   };
 
-  // 4. MARCAR COMO FEITA
-  const toggleTaskCompletion = async (id: string, currentStatus: boolean) => {
-    toggleTaskInStore(id); // UI Otimista
+  // 4. ALTERAR STATUS (Novo método mais poderoso que o toggle)
+  const updateTaskStatus = async (id: string, newStatus: TaskStatus) => {
+    // Atualize o store localmente aqui se tiver a action específica, 
+    // ou use o toggleTaskInStore de forma adaptada se for apenas visual
+    // Por simplicidade, vamos confiar no fetchTasks no catch ou sucesso
+    
+    // Atualização Otimista manual no array local (opcional, mas recomendada)
+    // ...
+
     try {
       const taskDoc = doc(db, "tasks", id);
-      await updateDoc(taskDoc, { completed: !currentStatus });
+      await updateDoc(taskDoc, { 
+        status: newStatus,
+        completed: newStatus === 'done' 
+      });
+      fetchTasks(); // Recarrega para reordenar se necessário
     } catch (error) {
-      console.error("Erro ao atualizar tarefa:", error);
-      fetchTasks(); // Revert
+      console.error("Erro ao atualizar:", error);
     }
   };
 
@@ -127,6 +132,6 @@ export const useTasks = () => {
     fetchTasks,
     addTask,
     deleteTask,
-    toggleTaskCompletion,
+    updateTaskStatus, // Exportamos a nova função
   };
 };
