@@ -81,7 +81,7 @@ const TasksPage = () => {
               </div>
               
               <button type="submit" className="btn btn-primary btn-sm px-4">
-                Adicionar <i className="bi bi-plus-lg ms-1"></i>
+                + <i className="bi bi-plus-lg ms-1"></i>
               </button>
             </div>
           </form>
