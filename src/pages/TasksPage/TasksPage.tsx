@@ -5,23 +5,26 @@ import { useTasks } from '../../hooks/useTasks';
 import type { Priority } from '../../types';
 import './TasksPage.css';
 
+// Tipo auxiliar para o filtro
 type FilterType = 'all' | 'todo' | 'done';
 
 const TasksPage = () => {
+  // Conectando ao Hook de Tarefas
   const { tasks, loadingTasks, fetchTasks, addTask, deleteTask, updateTaskStatus } = useTasks();
   
-  // Estados Locais
+  // Estados Locais da Página
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedPriority, setSelectedPriority] = useState<Priority>('medium');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
 
-  // Atualiza dados ao entrar
+  // Garante dados frescos ao carregar a página
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
-  // --- LÓGICA DE FILTRAGEM (O Coração da Página) ---
+  // --- O CÉREBRO DA FILTRAGEM ---
+  // useMemo garante que isso só rode quando tasks, filtro ou busca mudarem
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
       // 1. Filtro por Status (Abas)
@@ -31,6 +34,7 @@ const TasksPage = () => {
       // 2. Filtro por Texto (Busca)
       if (searchQuery.trim() !== '') {
         const query = searchQuery.toLowerCase();
+        // Verifica se o título contém o texto buscado
         return task.title.toLowerCase().includes(query);
       }
 
@@ -38,23 +42,25 @@ const TasksPage = () => {
     });
   }, [tasks, filterType, searchQuery]);
 
-  // Adicionar Tarefa
+  // Handler para adicionar nova tarefa
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
+    
+    // Feedback otimista já acontece no hook, então só limpamos o input
     await addTask(newTaskTitle, selectedPriority);
     setNewTaskTitle('');
-    setSelectedPriority('medium');
+    setSelectedPriority('medium'); // Volta para o padrão
   };
 
-  // Helpers Visuais
+  // Helpers de UI
   const getPriorityBadge = (p: Priority) => {
     const labels = { high: 'ALTA', medium: 'MÉDIA', low: 'BAIXA' };
     const colors = { high: 'bg-danger', medium: 'bg-warning text-dark', low: 'bg-success' };
-    return <span className={`badge ${colors[p]} me-2`} style={{fontSize: '0.6rem'}}>{labels[p]}</span>;
+    return <span className={`badge ${colors[p]} me-2`} style={{fontSize: '0.6rem', padding: '4px 6px'}}>{labels[p]}</span>;
   };
 
-  // Contadores para as abas
+  // Contadores inteligentes para as abas
   const countTodo = tasks.filter(t => t.status !== 'done').length;
   const countDone = tasks.filter(t => t.status === 'done').length;
 
@@ -64,11 +70,11 @@ const TasksPage = () => {
         
         {/* Cabeçalho */}
         <header className="tasks-header">
-          <h1 className="h2">Gerenciador de Tarefas</h1>
-          <p className="text-secondary">Organize, priorize e execute com precisão.</p>
+          <h1 className="h2">Gerenciador Tático</h1>
+          <p className="text-secondary">Organize, priorize e execute com precisão cirúrgica.</p>
         </header>
 
-        {/* --- TOOLBAR (Busca e Filtros) --- */}
+        {/* --- TOOLBAR (O Painel de Controle) --- */}
         <div className="tasks-toolbar">
           {/* Busca */}
           <div className="search-input-wrapper">
@@ -76,7 +82,7 @@ const TasksPage = () => {
             <input 
               type="text" 
               className="search-input" 
-              placeholder="Buscar tarefa..."
+              placeholder="Filtrar por nome..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -88,31 +94,30 @@ const TasksPage = () => {
               className={`filter-tab ${filterType === 'all' ? 'active' : ''}`}
               onClick={() => setFilterType('all')}
             >
-              Todas <span className="ms-1 opacity-50">{tasks.length}</span>
+              Todas <span className="badge bg-secondary bg-opacity-25 text-white ms-1 rounded-pill">{tasks.length}</span>
             </button>
             <button 
               className={`filter-tab ${filterType === 'todo' ? 'active' : ''}`}
               onClick={() => setFilterType('todo')}
             >
-              Pendentes <span className="ms-1 opacity-50">{countTodo}</span>
+              Pendentes <span className="badge bg-secondary bg-opacity-25 text-white ms-1 rounded-pill">{countTodo}</span>
             </button>
             <button 
               className={`filter-tab ${filterType === 'done' ? 'active' : ''}`}
               onClick={() => setFilterType('done')}
             >
-              Concluídas <span className="ms-1 opacity-50">{countDone}</span>
+              Concluídas <span className="badge bg-secondary bg-opacity-25 text-white ms-1 rounded-pill">{countDone}</span>
             </button>
           </div>
         </div>
 
-        {/* --- CARD DE ADIÇÃO (Input) --- */}
+        {/* --- CARD DE ADIÇÃO (Input Rápido) --- */}
         <div className="add-task-card">
           <form onSubmit={handleAddTask}>
             <div className="d-flex align-items-center w-100">
               <input
                 type="text"
-                className="form-control flex-grow-1 bg-transparent border-0 text-white shadow-none ps-2"
-                placeholder="O que precisa ser feito?"
+                placeholder="Qual é a próxima missão?"
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
               />
@@ -133,27 +138,29 @@ const TasksPage = () => {
                 ))}
               </div>
               
-              <button type="submit" className="btn btn-primary btn-sm px-4 rounded-pill">
-                 Adicionar <i className="bi bi-plus-lg ms-1"></i>
+              <button type="submit" className="btn btn-primary btn-sm px-4 rounded-3">
+                 <i className="bi bi-plus-lg me-1"></i> Adicionar
               </button>
             </div>
           </form>
         </div>
 
-        {/* --- LISTA DE TAREFAS --- */}
+        {/* --- LISTA DE TAREFAS --- */ }
         <div className="tasks-list-container">
           {loadingTasks && tasks.length === 0 ? (
             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
           ) : filteredTasks.length === 0 ? (
-            // EMPTY STATE INTELIGENTE
-            <div className="text-center py-5 opacity-50">
-              <i className={`bi ${searchQuery ? 'bi-search' : 'bi-clipboard-check'} display-1 text-secondary`}></i>
+            // --- EMPTY STATES INTELIGENTES ---
+            <div className="text-center py-5 opacity-50 user-select-none">
+              <i className={`bi ${searchQuery ? 'bi-search' : (filterType === 'done' ? 'bi-clipboard-x' : 'bi-check2-circle')} display-1 text-secondary`}></i>
               <p className="mt-3 fs-5">
                 {searchQuery 
-                  ? `Nenhuma tarefa encontrada para "${searchQuery}"` 
+                  ? `Nenhum resultado para "${searchQuery}"` 
                   : filterType === 'done' 
                     ? "Nenhuma tarefa concluída ainda." 
-                    : "Nenhuma tarefa pendente. Bom trabalho!"}
+                    : filterType === 'todo' && tasks.length > 0 
+                        ? "Tudo limpo! Nenhuma pendência."
+                        : "Comece adicionando uma nova tarefa acima."}
               </p>
             </div>
           ) : (
@@ -164,10 +171,11 @@ const TasksPage = () => {
                   className={`task-item d-flex align-items-center p-3 ${task.status === 'done' ? 'task-completed' : ''}`}
                   style={{ borderLeft: `4px solid var(--bs-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'success'})` }}
                 >
-                  {/* Checkbox */}
+                  {/* Checkbox Interativo */}
                   <div 
                     className={`custom-check me-3 ${task.status === 'done' ? 'checked' : ''}`}
                     onClick={() => updateTaskStatus(task.id, task.status === 'done' ? 'todo' : 'done')}
+                    title={task.status === 'done' ? "Marcar como pendente" : "Concluir tarefa"}
                   >
                     {task.status === 'done' && <i className="bi bi-check-lg"></i>}
                   </div>
@@ -181,12 +189,12 @@ const TasksPage = () => {
                     </div>
                     <small className="text-secondary" style={{ fontSize: '0.75rem' }}>
                       <i className="bi bi-clock me-1"></i>
-                      {new Date(task.createdAt).toLocaleDateString()} às {new Date(task.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      {new Date(task.createdAt).toLocaleDateString()}
                     </small>
                   </div>
 
                   <button 
-                    className="btn btn-icon text-secondary"
+                    className="btn-icon text-secondary"
                     onClick={() => deleteTask(task.id)}
                     title="Excluir tarefa"
                   >

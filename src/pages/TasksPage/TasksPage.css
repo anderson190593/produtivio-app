@@ -29,6 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
 /* Campo de Busca */
@@ -61,6 +62,11 @@
   outline: none;
 }
 
+.search-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
 /* Abas de Filtro */
 .filter-tabs {
   display: flex;
@@ -71,7 +77,7 @@
 
 .filter-tab {
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: var(--text-secondary);
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
@@ -79,6 +85,7 @@
   border-radius: 0.5rem;
   transition: all 0.2s;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .filter-tab:hover {
@@ -90,6 +97,7 @@
   background-color: rgba(112, 0, 255, 0.1);
   color: var(--accent-color);
   font-weight: 700;
+  border-color: rgba(112, 0, 255, 0.2);
 }
 
 /* --- INPUT DE NOVA TAREFA --- */
@@ -114,47 +122,73 @@
   font-family: 'Inter', monospace;
   font-size: 1.1rem;
   padding: 0.5rem;
+  width: 100%;
 }
 
 .add-task-card input:focus {
   outline: none;
 }
 
+.add-task-card input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
 /* Botões de Prioridade */
+.priority-selector {
+  overflow-x: auto;
+}
+
 .priority-btn {
-  border-color: var(--border-color);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
   transition: all 0.2s;
   background: transparent;
 }
 
-.priority-btn.active {
-  color: #fff;
-  font-weight: bold;
-  border-color: transparent;
+.priority-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Cores de Prioridade */
-.priority-btn.active.high { background-color: #dc3545; }
-.priority-btn.active.medium { background-color: #ffc107; color: #000; }
-.priority-btn.active.low { background-color: #198754; }
+.priority-btn.active {
+  color: #fff; /* Texto branco para leitura */
+  font-weight: bold;
+  border-color: transparent;
+  transform: scale(1.05);
+}
+
+/* Cores de Prioridade Ativa */
+.priority-btn.active.high { background-color: #dc3545; box-shadow: 0 0 10px rgba(220, 53, 69, 0.4); }
+.priority-btn.active.medium { background-color: #ffc107; color: #000; box-shadow: 0 0 10px rgba(255, 193, 7, 0.4); }
+.priority-btn.active.low { background-color: #198754; box-shadow: 0 0 10px rgba(25, 135, 84, 0.4); }
 
 /* --- LISTA DE TAREFAS --- */
+.tasks-list-container {
+  min-height: 200px;
+}
+
 .task-item {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+  margin-bottom: 0.75rem;
 }
 
 .task-item:hover {
   transform: translateX(4px);
   background-color: var(--bg-hover);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .task-completed {
-  opacity: 0.6;
+  opacity: 0.5;
+  background-color: rgba(30, 30, 36, 0.5);
+}
+
+.task-completed:hover {
+  opacity: 0.8;
 }
 
 .task-completed .task-title {
@@ -174,6 +208,7 @@
   cursor: pointer;
   transition: all 0.2s;
   color: var(--bg-app);
+  flex-shrink: 0;
 }
 
 .custom-check:hover {
@@ -191,13 +226,16 @@
   background: transparent;
   border: none;
   transition: all 0.2s;
+  padding: 0.5rem;
+  border-radius: 50%;
 }
 
 .btn-icon:hover {
-  transform: scale(1.1);
+  background-color: rgba(220, 53, 69, 0.1);
   color: #ff4d4d !important;
 }
 
+/* Responsividade Desktop */
 @media (min-width: 768px) {
   .tasks-toolbar {
     flex-direction: row;
@@ -206,6 +244,6 @@
   }
   
   .search-input-wrapper {
-    max-width: 300px;
+    max-width: 320px;
   }
 }
