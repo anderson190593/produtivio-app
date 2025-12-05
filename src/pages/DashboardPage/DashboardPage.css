@@ -11,6 +11,16 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* HEADER RELÓGIO */
+.time-widget {
+  text-align: right;
+  line-height: 1;
+}
+
+.letter-spacing-2 {
+  letter-spacing: 2px;
+}
+
 /* Destaque de Texto (Neon) */
 .text-accent {
   color: var(--accent-color);
@@ -18,19 +28,23 @@
 }
 
 .text-small {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+}
+
+.hover-white:hover {
+  color: white !important;
 }
 
 /* --- GRID SYSTEM --- */
 .dashboard-grid {
   display: grid;
-  /* Cria colunas automáticas com largura mínima de 300px */
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  /* Grid responsivo de 3 colunas em telas grandes */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
-/* --- TECH CARDS (O visual futurista) --- */
+/* --- TECH CARDS (Visual Futurista) --- */
 .tech-card {
   background-color: var(--bg-card); /* Fundo cinza escuro */
   border: 1px solid var(--border-color);
@@ -38,65 +52,91 @@
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
+  height: 100%; /* Garante altura igual no grid */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   
-  /* Transição suave para o hover */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
               box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               border-color 0.3s ease;
 }
 
-/* Efeito ao passar o mouse no card */
 .tech-card:hover {
-  transform: translateY(-5px); /* Levanta levemente */
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); /* Sombra profunda */
-  border-color: var(--accent-color); /* Borda brilha na cor do tema */
+  transform: translateY(-5px); 
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); 
+  border-color: var(--accent-color); 
 }
 
-/* Ícones dentro dos cards */
+/* Ícones coloridos dos cards */
 .card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   margin-bottom: 1rem;
-  
-  /* Padrão: Roxo */
-  background-color: rgba(112, 0, 255, 0.1);
+  background-color: rgba(112, 0, 255, 0.15); /* Roxo */
   color: var(--accent-color);
 }
 
-.card-icon.warning {
-  background-color: rgba(255, 193, 7, 0.1);
-  color: #ffc107;
-}
-
-.card-icon.info {
-  background-color: rgba(13, 202, 240, 0.1);
-  color: #0dcaf0;
-}
+.card-icon.warning { background-color: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.card-icon.danger { background-color: rgba(220, 53, 69, 0.15); color: #dc3545; }
+.card-icon.success { background-color: rgba(25, 135, 84, 0.15); color: #198754; }
+.card-icon.info { background-color: rgba(13, 202, 240, 0.15); color: #0dcaf0; }
 
 /* Títulos dos cards */
 .tech-card h3 {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
 }
 
-/* Pontinhos de status (Online/Offline) */
-.status-dot {
-  width: 8px;
-  height: 8px;
+/* --- ESTILOS ESPECÍFICOS --- */
+
+/* Timer Card */
+.btn-icon-round {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: #333;
+  border: none;
+  background-color: var(--accent-color);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.2s;
 }
 
-.status-dot.online {
-  background-color: #198754; /* Verde */
-  box-shadow: 0 0 8px rgba(25, 135, 84, 0.6);
+.btn-icon-round:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.btn-icon-round.secondary {
+  background-color: rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+}
+
+.btn-icon-round.secondary:hover {
+  background-color: rgba(255,255,255,0.2);
+  color: white;
+}
+
+/* Input Card */
+.input-card input::placeholder {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.input-card .form-control:focus {
+  background-color: var(--bg-card);
+  border-color: #198754; /* Verde sucesso */
+  box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);
 }
