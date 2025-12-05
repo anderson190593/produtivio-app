@@ -1,34 +1,42 @@
 // src/pages/NotesPage/NotesPage.tsx
 
-import { useState } from 'react'; // useEffect removido pois AppLayout já carrega
+import { useState, useMemo } from 'react'; 
 import { useNotes } from '../../hooks/useNotes';
-import type { Note } from '../../types'; // Importar o tipo para tipar o estado
+import type { Note } from '../../types';
 import './NotesPage.css';
 
 const NotesPage = () => {
-  // Pegamos o updateNote agora
   const { notes, isLoadingNotes, addNote, deleteNote, updateNote } = useNotes();
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  // Novo estado para saber se estamos editando
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  
+  // --- NOVO: Estado da Busca ---
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // --- NOVO: Lógica de Filtragem ---
+  const filteredNotes = useMemo(() => {
+    if (!searchQuery.trim()) return notes;
+    
+    const query = searchQuery.toLowerCase();
+    return notes.filter(note => 
+      note.title.toLowerCase().includes(query) || 
+      note.content.toLowerCase().includes(query)
+    );
+  }, [notes, searchQuery]);
 
   const handleSaveNote = async () => {
     if (!title.trim() && !content.trim()) return;
 
     if (editingNoteId) {
-      // MODO EDIÇÃO
       await updateNote(editingNoteId, title, content);
-      setEditingNoteId(null); // Sai do modo edição
+      setEditingNoteId(null);
     } else {
-      // MODO CRIAÇÃO
       await addNote(title, content);
     }
 
-    // Limpa o form
     setTitle('');
     setContent('');
     setIsExpanded(false);
@@ -38,31 +46,46 @@ const NotesPage = () => {
     setIsExpanded(false);
     setTitle('');
     setContent('');
-    setEditingNoteId(null); // Cancela edição também
+    setEditingNoteId(null);
   };
 
-  // Função para carregar a nota no formulário ao clicar nela
   const handleEditClick = (note: Note) => {
     setEditingNoteId(note.id);
     setTitle(note.title);
     setContent(note.content);
-    setIsExpanded(true); // Abre o formulário
-    
-    // Rola a página suavemente para o topo (onde está o formulário)
+    setIsExpanded(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="notes-page-wrapper">
-      <header className="mb-4">
-        <h1 className="h2 fw-bold text-white">Notas Rápidas</h1>
-        <p className="text-secondary">Ideias, lembretes e fragmentos de código.</p>
+      
+      {/* Cabeçalho com Busca Integrada */}
+      <header className="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <h1 className="h2 fw-bold text-white mb-1">Notas Rápidas</h1>
+          <p className="text-secondary mb-0">Seu banco de conhecimento pessoal.</p>
+        </div>
+
+        {/* --- BARRA DE BUSCA --- */}
+        <div className="search-input-wrapper" style={{ maxWidth: '300px', width: '100%' }}>
+          <div className="position-relative">
+            <i className="bi bi-search position-absolute text-secondary" style={{ left: '1rem', top: '50%', transform: 'translateY(-50%)' }}></i>
+            <input 
+              type="text" 
+              className="form-control bg-dark border-secondary text-white ps-5" 
+              placeholder="Buscar notas..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ borderRadius: '0.5rem', backgroundColor: 'var(--bg-card)' }}
+            />
+          </div>
+        </div>
       </header>
 
-      {/* Área de Criação / Edição */}
+      {/* Área de Criação (Input Expandível) */}
       <div className="create-note-container">
         <div className={`note-input-card ${editingNoteId ? 'editing-mode' : ''}`}>
-          {/* Indicador visual de que está editando */}
           {editingNoteId && (
             <div className="text-accent small mb-2 fw-bold">
               <i className="bi bi-pencil-fill me-2"></i> Editando nota
@@ -107,22 +130,23 @@ const NotesPage = () => {
         </div>
       </div>
 
-      {/* Grid de Notas */}
+      {/* Grid de Notas Filtradas */}
       {isLoadingNotes ? (
          <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status"></div>
          </div>
-      ) : notes.length === 0 ? (
+      ) : filteredNotes.length === 0 ? (
         <div className="text-center py-5 opacity-50">
-            <i className="bi bi-journal-bookmark display-1 text-secondary"></i>
-            <p className="mt-3 text-secondary">Nenhuma nota criada.</p>
+            <i className={`bi ${searchQuery ? 'bi-search' : 'bi-journal-bookmark'} display-1 text-secondary`}></i>
+            <p className="mt-3 text-secondary">
+              {searchQuery ? `Nenhuma nota encontrada para "${searchQuery}"` : "Nenhuma nota criada."}
+            </p>
         </div>
       ) : (
         <div className="notes-grid">
-          {notes.map((note) => (
+          {filteredNotes.map((note) => (
             <div 
               key={note.id} 
-              // Adicionamos onClick no card para editar
               className={`note-card ${note.isPinned ? 'pinned' : ''} ${editingNoteId === note.id ? 'being-edited' : ''}`}
               onClick={() => handleEditClick(note)}
               style={{ cursor: 'pointer' }}
@@ -140,7 +164,7 @@ const NotesPage = () => {
                   <button 
                     className="delete-btn"
                     onClick={(e) => {
-                        e.stopPropagation(); // Impede de abrir a edição ao deletar
+                        e.stopPropagation(); 
                         deleteNote(note.id);
                     }}
                   >
